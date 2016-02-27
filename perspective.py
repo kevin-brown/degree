@@ -27,7 +27,7 @@ def order_points(pts):
     return rect
 
 
-def skew_correction(image, outfile, points):
+def skew_correction(image, points):
     """
     image should be a cv2 image object
     """
@@ -61,7 +61,7 @@ def skew_correction(image, outfile, points):
     M = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(image, M, (max_width, max_height))
 
-    cv2.imwrite(outfile, warped)
+    return warped
 
 
 if __name__=="__main__":
@@ -70,4 +70,6 @@ if __name__=="__main__":
     infile = sys.argv[1]
     outfile = sys.argv[2]
 
-    skew_correction(infile, outfile)
+    img = cv2.imread(infile)
+    skewed = skew_correction(img)
+    cv2.imwrite(outfile, skewed)
