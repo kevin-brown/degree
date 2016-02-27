@@ -3,7 +3,7 @@ import sys
 def clean_whiteboard(color_image):
     import cv2
     import numpy as np
-    
+
     image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
 
     # Blur the image using Gaussian filtering
@@ -14,15 +14,13 @@ def clean_whiteboard(color_image):
         image.astype(np.uint8), 255,
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         cv2.THRESH_BINARY, 71, 10)
-        
-    # filtered does not have depth, but we need it to match
-    # the matrix size for color for addWeighted.
-    # WOULD LIKE A WAY TO AVOID WRITING AND REREADING.
-    cv2.imwrite('filtered.jpg', filtered)
-    filtered = cv2.imread('filtered.jpg')
+
+    # Convert the grayscale image back to rgb
+    # This makes it possible to merge it with color image
+    colored = cv2.cvtColor(filtered, cv2.COLOR_GRAY2BGR)
 
     # Weight against the original to add color back to image.
-    enh = cv2.addWeighted(color_image,0.6,filtered,0.4,0)
+    enh = cv2.addWeighted(color_image,0.6,colored,0.4,0)
 
     return enh
 
