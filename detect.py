@@ -1,25 +1,6 @@
 import cv2
 import numpy
 
-image = cv2.imread("img/a.jpg")
-
-hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-# Dark and light green colors are in a small range
-green_low = numpy.array((40, 100, 60))
-green_high = numpy.array((70, 255, 200))
-
-# Get all areas in the image that are green-ish
-green_mask = cv2.inRange(hsv_image, green_low, green_high)
-
-# Light red is on the low end of the spectrum
-# Dark red is closer to the top, so we ignore it
-red_low = numpy.array((0, 200, 200))
-red_high = numpy.array((10, 255, 255))
-
-# Get all areas in the image that are light red
-red_mask = cv2.inRange(hsv_image, red_low, red_high)
-
 
 def find_touch_area(delta_list, point, visited_list):
     if point in visited_list:
@@ -115,36 +96,67 @@ def touch_area_midpoint(touch_x1, touch_y1, touch_x2, touch_y2):
 
     return (area_x, area_y)
 
-red_visited_list = set()
-green_visited_list = set()
 
-red_points = set()
-green_points = set()
+def edge_detect(infile):
+    image = cv2.imread(infile)
 
-for x in range(image.shape[1]):
-    for y in range(image.shape[0]):
-        point = (y, x)
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        if point not in red_visited_list:
-            visited_list = []
+    # Dark and light green colors are in a small range
+    green_low = numpy.array((40, 100, 60))
+    green_high = numpy.array((70, 255, 200))
 
-            find_touch_area(red_mask, (y, x), visited_list)
-            area = touch_area_from_visited(visited_list)
+    # Get all areas in the image that are green-ish
+    green_mask = cv2.inRange(hsv_image, green_low, green_high)
 
-            red_visited_list.update(visited_list)
+    # Light red is on the low end of the spectrum
+    # Dark red is closer to the top, so we ignore it
+    red_low = numpy.array((0, 200, 200))
+    red_high = numpy.array((10, 255, 255))
 
-            if area is not None:
-                red_points.add(touch_area_midpoint(*area))
+    # Get all areas in the image that are light red
+    red_mask = cv2.inRange(hsv_image, red_low, red_high)
 
-        if point not in green_visited_list:
-            visited_list = []
 
-            find_touch_area(green_mask, (y, x), visited_list)
-            area = touch_area_from_visited(visited_list)
+    red_visited_list = set()
+    green_visited_list = set()
 
-            red_visited_list.update(visited_list)
+    red_points = set()
+    green_points = set()
 
-            if area is not None:
-                green_points.add(touch_area_midpoint(*area))
+    for x in range(image.shape[1]):
+        for y in range(image.shape[0]):
+            point = (y, x)
 
-print(set(list(red_points) + list(green_points)))
+            if point not in red_visited_list:
+                visited_list = []
+
+                find_touch_area(red_mask, (y, x), visited_list)
+                area = touch_area_from_visited(visited_list)
+
+                red_visited_list.update(visited_list)
+
+                if area is not None:
+                    red_points.add(touch_area_midpoint(*area))
+
+            if point not in green_visited_list:
+                visited_list = []
+
+                find_touch_area(green_mask, (y, x), visited_list)
+                area = touch_area_from_visited(visited_list)
+
+                red_visited_list.update(visited_list)
+
+                if area is not None:
+                    green_points.add(touch_area_midpoint(*area))
+
+    return set(list(red_points) + list(green_points))
+
+
+if __name__=="__main__":
+    import sys
+
+    infile = sys.argv[1]
+    edges = edge_detect(infile)
+
+    print(edges)
