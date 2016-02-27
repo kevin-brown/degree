@@ -27,13 +27,13 @@ def order_points(pts):
     return rect
 
 
-def skew_correction(infile, outfile):
-    points = {(131, 240), (818, 269), (201, 1105), (660, 1128)}
+def skew_correction(image, outfile, points):
+    """
+    image should be a cv2 image object
+    """
     points = np.array(list((y, x) for x, y in points))
 
     (tl, tr, br, bl) = order_points(points)
-
-    image = cv2.imread(infile)
 
     rect = np.array([tl, tr, br, bl], dtype="float32")
 
