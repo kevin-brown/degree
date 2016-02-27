@@ -122,8 +122,8 @@ def edge_detect(image):
     red_points = set()
     green_points = set()
 
-    for x in range(image.shape[1]):
-        for y in range(image.shape[0]):
+    for x in range(0, image.shape[1], 3):
+        for y in range(0, image.shape[0], 3):
             point = (y, x)
 
             if point not in red_visited_list:
