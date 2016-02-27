@@ -97,9 +97,7 @@ def touch_area_midpoint(touch_x1, touch_y1, touch_x2, touch_y2):
     return (area_x, area_y)
 
 
-def edge_detect(infile):
-    image = cv2.imread(infile)
-
+def edge_detect(image):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     # Dark and light green colors are in a small range
@@ -150,7 +148,7 @@ def edge_detect(infile):
                 if area is not None:
                     green_points.add(touch_area_midpoint(*area))
 
-    return set(list(red_points) + list(green_points))
+    return set(red_points) | set(green_points)
 
 
 if __name__=="__main__":
